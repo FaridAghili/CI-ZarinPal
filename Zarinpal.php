@@ -1,8 +1,9 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Zarinpal {
+defined('BASEPATH') or exit('No direct script access allowed');
 
+class Zarinpal
+{
     private $merchant_id;
     private $authority;
     private $error;
@@ -10,7 +11,7 @@ class Zarinpal {
     private $url;
 
     private $wsdl_url = 'https://www.zarinpal.com/pg/services/WebGate/wsdl';
-    private $pay_url  = 'https://www.zarinpal.com/pg/StartPay/';
+    private $pay_url = 'https://www.zarinpal.com/pg/StartPay/';
 
     public function __construct($params)
     {
@@ -23,37 +24,39 @@ class Zarinpal {
             'MerchantID'  => $this->merchant_id,
             'Amount'      => $amount,
             'Description' => $desc,
-            'CallbackURL' => $callback
+            'CallbackURL' => $callback,
         ];
 
-        if ($email)
+        if ($email) {
             $params['Email'] = $email;
+        }
 
-        if ($mobile)
+        if ($mobile) {
             $params['Mobile'] = $mobile;
+        }
 
         $client = new SoapClient($this->wsdl_url, [
-            'encoding' => 'UTF-8'
+            'encoding' => 'UTF-8',
         ]);
 
         $result = $client->PaymentRequest($params);
 
-        if ($result->Status !== 100)
-        {
+        if ($result->Status !== 100) {
             $this->error = $result->Status;
-            return FALSE;
+
+            return false;
         }
 
         $this->authority = $result->Authority;
-        $this->url       = $this->pay_url.$this->authority;
-        return TRUE;
+        $this->url = $this->pay_url.$this->authority;
+
+        return true;
     }
 
     public function redirect()
     {
-        if ( ! function_exists('redirect'))
-        {
-            $CI =& get_instance();
+        if (!function_exists('redirect')) {
+            $CI = &get_instance();
             $CI->load->helper('url');
         }
 
@@ -65,29 +68,30 @@ class Zarinpal {
         $params = [
             'MerchantID' => $this->merchant_id,
             'Amount'     => $amount,
-            'Authority'  => $authority
+            'Authority'  => $authority,
         ];
 
         $client = new SoapClient($this->wsdl_url, [
-            'encoding' => 'UTF-8'
+            'encoding' => 'UTF-8',
         ]);
 
         $result = $client->PaymentVerification($params);
 
-        if ($result->Status !== 100)
-        {
+        if ($result->Status !== 100) {
             $this->error = $result->Status;
-            return FALSE;
+
+            return false;
         }
 
         $this->ref_id = $result->RefID;
-        return TRUE;
+
+        return true;
     }
 
     public function sandbox()
     {
         $this->wsdl_url = 'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl';
-        $this->pay_url  = 'https://sandbox.zarinpal.com/pg/StartPay/';
+        $this->pay_url = 'https://sandbox.zarinpal.com/pg/StartPay/';
     }
 
     public function get_authority()
