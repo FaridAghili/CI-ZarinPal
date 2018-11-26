@@ -48,7 +48,9 @@ class Zarinpal
         }
 
         $this->authority = $result->Authority;
+        
         $this->url = $this->pay_url.$this->authority;
+        // use this line for ZarinGate=> $this->url = $this->pay_url.$this->authority.'/ZarinGate';
 
         return true;
     }
